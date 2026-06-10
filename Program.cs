@@ -2,13 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 
+enum EstadoProceso
+{
+    READY,
+    RUNNING,
+    TERMINATED
+}
 class PCB
 {
     public int PID { get; set; }
     public required string Nombre { get; set; }
     public int RáfagaCPU { get; set; }
     public int TiempoLlegada { get; set; }
-    public required string Estado { get; set; }  // "READY", "RUNNING", "TERMINATED"
+    public EstadoProceso Estado { get; set; }  // READY, RUNNING, TERMINATED
 }
 
 class Program
@@ -18,9 +24,9 @@ class Program
         // Datos hardcodeados
         List<PCB> procesos =
             [
-                new PCB { PID = 1, Nombre = "P1", RáfagaCPU = 6, TiempoLlegada = 1, Estado = "READY" },
-                new PCB { PID = 2, Nombre = "P2", RáfagaCPU = 3, TiempoLlegada = 2, Estado = "READY" },
-                new PCB { PID = 3, Nombre = "P3", RáfagaCPU = 2, TiempoLlegada = 3, Estado = "READY" }
+                new PCB { PID = 1, Nombre = "P1", RáfagaCPU = 6, TiempoLlegada = 1, Estado = EstadoProceso.READY },
+                new PCB { PID = 2, Nombre = "P2", RáfagaCPU = 3, TiempoLlegada = 2, Estado = EstadoProceso.READY },
+                new PCB { PID = 3, Nombre = "P3", RáfagaCPU = 2, TiempoLlegada = 3, Estado = EstadoProceso.READY }
             ];
 
         Console.WriteLine("=== SIMULADOR DE PLANIFICACIÓN ===\n");

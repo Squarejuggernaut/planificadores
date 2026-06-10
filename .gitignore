@@ -1,0 +1,12 @@
+# Archivos compilados
+bin/
+obj/
+
+# Archivos generados por el IDE
+.vscode/
+*.user
+*.suo
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
