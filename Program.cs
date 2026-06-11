@@ -3,25 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using PlanificacionDeProcesos;
 
-class PCB
-{
-    public int PID { get; set; }
-    public required string Nombre { get; set; }
-    public int RáfagaCPU { get; set; }
-    public int TiempoLlegada { get; set; }
-    public EstadoProceso Estado { get; set; }
-}
-
 class Program
 {
     static void Main(string[] args)
     {
+        // Crear procesos usando el constructor (ya no hace falta asignar PID, Nombre, Estado)
         List<PCB> procesos =
-            [
-                new PCB { PID = 1, Nombre = "P1", RáfagaCPU = 6, TiempoLlegada = 1, Estado = EstadoProceso.NEW },
-                new PCB { PID = 2, Nombre = "P2", RáfagaCPU = 3, TiempoLlegada = 2, Estado = EstadoProceso.NEW },
-                new PCB { PID = 3, Nombre = "P3", RáfagaCPU = 2, TiempoLlegada = 3, Estado = EstadoProceso.NEW }
-            ];
+        [
+            new PCB(6, 1),   // P1, PID=1
+            new PCB(3, 2),   // P2, PID=2
+            new PCB(2, 3)    // P3, PID=3
+        ];
 
         Console.WriteLine("=== SIMULADOR DE PLANIFICACIÓN ===\n");
 
@@ -38,7 +30,7 @@ class Program
         Console.WriteLine("Orden de ejecución (FCFS):");
         foreach (var p in ordenados)
         {
-            Console.WriteLine($"  {p.Nombre} - Estado: {p.Estado} (ráfaga: {p.RáfagaCPU}, llegada: {p.TiempoLlegada})");
+            Console.WriteLine($"  {p.Nombre} - Estado: {p.Estado} (PID: {p.PID}, ráfaga: {p.RáfagaCPU}, llegada: {p.TiempoLlegada})");
         }
     }
 
@@ -48,7 +40,7 @@ class Program
         Console.WriteLine("\nOrden de ejecución (SJF):");
         foreach (var p in ordenados)
         {
-            Console.WriteLine($"  {p.Nombre} - Estado: {p.Estado} (ráfaga: {p.RáfagaCPU}, llegada: {p.TiempoLlegada})");
+            Console.WriteLine($"  {p.Nombre} - Estado: {p.Estado} (PID: {p.PID}, ráfaga: {p.RáfagaCPU}, llegada: {p.TiempoLlegada})");
         }
     }
 }

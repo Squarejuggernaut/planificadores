@@ -18,8 +18,8 @@
 
 - ✅ **Resuelto en Refactor 1:** Los estados del proceso son pocos y siempre los mismos. Podría ponerlos en un `enum` para evitar errores (mayúsculas, "Ready", etc.).
 - ✅ **Resuelto en Refactor 1:** En el Main cuando se crean los PCBs se agregan a una lista que a mi forma de ver simula ser los "NEW" tal vez conviene agregar al enum este estado para respetar aún más la teoría (tal vez no se va a ver nunca este estado pero está bueno remarcarlo que existe).
-- ⬜ **Pendiente:** Los nombres de los procesos son P1, P2... El PID está hardcodeado. Buscar una forma de automatizar su creación.
-- ⬜ **Pendiente:** Todos los campos tienen `get` y `set`. ¿Todos pueden ser cambiados una vez creado? PID y Nombre no deberían modificarse. Sacar el `set` de esos lugares o usar `private set`.
+- ✅ **Resuelto en Refactor 2:** Los nombres de los procesos son P1, P2... El PID está hardcodeado. Buscar una forma de automatizar su creación.
+- ✅ **Resuelto en Refactor 2:** Todos los campos tienen `get` y `set`. ¿Todos pueden ser cambiados una vez creado? PID y Nombre no deberían modificarse. Sacar el `set` de esos lugares o usar `private set`.
 
 #### Interacción con el usuario
 
@@ -49,3 +49,15 @@
   - ⬜ **Pendiente:** Los PCBs se crean con estado `NEW`, pero los planificadores (FCFS y SJF) aún no actualizan el estado a `READY`, `RUNNING` o `TERMINATED` durante la simulación.
 - **Mejora adicional (no planeada originalmente):**
   - Se modificó la salida de FCFS y SJF para mostrar el estado actual de cada proceso, evidenciando que todos siguen en `NEW` (aún no se implementa el cambio de estado en los planificadores).
+
+## Refactor 2: Separar clase PCB a su propio archivo y automatizar PID y Nombre
+
+- **Cambios realizados:**
+  - Se creó el archivo `PCB.cs` con la clase `PCB`.
+  - Se agregó un constructor que recibe `ráfagaCPU` y `tiempoLlegada`.
+  - Se automatizó la generación de `PID` (autoincremental) y `Nombre` ($"P{PID}"`).
+  - Se cambiaron `PID`, `Nombre` y `TiempoLlegada` a `private set` (solo lectura).
+  - Se simplificó la creación de procesos en `Main` (ya no se asignan manualmente esos campos).
+- **Problemas que resuelve:**
+  - PID y Nombre ya no están hardcodeados.
+  - Se respeta el encapsulamiento (campos inmutables después de creados).
