@@ -35,22 +35,20 @@ class Program
     static void FCFS(List<PCB> procesos)
     {
         var ordenados = procesos.OrderBy(p => p.TiempoLlegada).ToList();
-        Console.Write("Orden de ejecución: ");
+        Console.WriteLine("Orden de ejecución (FCFS):");
         foreach (var p in ordenados)
         {
-            Console.Write(p.Nombre + " ");
+            Console.WriteLine($"  {p.Nombre} - Estado: {p.Estado} (ráfaga: {p.RáfagaCPU}, llegada: {p.TiempoLlegada})");
         }
-        Console.WriteLine();
     }
 
     static void SJF(List<PCB> procesos)
     {
         var ordenados = procesos.OrderBy(p => p.RáfagaCPU).ToList();
-        Console.Write("Orden de ejecución: ");
+        Console.WriteLine("\nOrden de ejecución (SJF):");
         foreach (var p in ordenados)
         {
-            Console.Write(p.Nombre + " ");
+            Console.WriteLine($"  {p.Nombre} - Estado: {p.Estado} (ráfaga: {p.RáfagaCPU}, llegada: {p.TiempoLlegada})");
         }
-        Console.WriteLine();
     }
 }
