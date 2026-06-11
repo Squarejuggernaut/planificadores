@@ -12,7 +12,7 @@
 
 #### Organización del código
 
-- ⬜ **Pendiente:** Está todo en un solo archivo, no se aprovecha el paradigma de objetos.
+- ✅ **Resuelto en Refactor 1, 2 y 3:** Está todo en un solo archivo, no se aprovecha el paradigma de objetos.
 
 #### Clase PCB
 
@@ -61,3 +61,14 @@
 - **Problemas que resuelve:**
   - PID y Nombre ya no están hardcodeados.
   - Se respeta el encapsulamiento (campos inmutables después de creados).
+
+## Refactor 3: Separar FCFS y SJF a sus propios archivos
+
+- **Cambios realizados:**
+  - Se creó `PlanificadorFCFS.cs` con la clase estática `PlanificadorFCFS`.
+  - Se creó `PlanificadorSJF.cs` con la clase estática `PlanificadorSJF`.
+  - Se simplificó `Program.cs` (solo crea procesos y llama a los planificadores).
+- **Problemas que resuelve:**
+  - Organización del código: ya no está todo en un solo archivo.
+- **Nuevos problemas detectados:**
+  - ⬜ **Pendiente:** Estoy viendo que vamos a tener muchas cosas que se van a repetir entre todos los tipos de planificadores quizás con una clase abstracta que actúe de padre o base. Donde se pueda poner todo lo que se compartirá entre todos y luego las hijas hagan que cada uno maneje lo específico.
