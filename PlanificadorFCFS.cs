@@ -10,19 +10,13 @@ namespace PlanificacionDeProcesos
         private static List<PCB> _procesos;
         private static List<string> _ordenFinalizacion;
         private static int _procesosTerminados;
-        private static Table _tablaSimulacion;
 
         public static void Ejecutar(List<PCB> procesosOriginales)
         {
-            if (procesosOriginales.Count > 10)
-            {
-                AnsiConsole.MarkupLine("[red]Error: Máximo 10 procesos permitidos.[/]");
-                return;
-            }
+            if (!ValidarProcesos(procesosOriginales)) return;
 
             Inicializar(procesosOriginales);
-            MostrarTablaProcesosIniciales();
-            ConfigurarTablaSimulacion();
+            InicializarUI();
 
             while (_procesosTerminados < _procesos.Count)
             {
@@ -36,6 +30,16 @@ namespace PlanificacionDeProcesos
             MostrarResultadosFinales();
         }
 
+        private static bool ValidarProcesos(List<PCB> procesos)
+        {
+            if (procesos.Count > 10)
+            {
+                AnsiConsole.MarkupLine("[red]Error: Máximo 10 procesos permitidos.[/]");
+                return false;
+            }
+            return true;
+        }
+
         private static void Inicializar(List<PCB> procesosOriginales)
         {
             _tiempoActual = 0;
@@ -46,17 +50,12 @@ namespace PlanificacionDeProcesos
             _procesosTerminados = 0;
         }
 
-        private static void MostrarTablaProcesosIniciales()
+        private static void InicializarUI()
         {
             AnsiConsole.Write(new Rule("📋 Procesos creados (estado NEW)").RuleStyle("yellow"));
-            var tabla = LayoutTabla.CrearTablaProcesosIniciales(_procesos);
-            AnsiConsole.Write(tabla);
+            var tablaProcesos = LayoutTabla.CrearTablaProcesosIniciales(_procesos);
+            AnsiConsole.Write(tablaProcesos);
             AnsiConsole.WriteLine();
-        }
-
-        private static void ConfigurarTablaSimulacion()
-        {
-            _tablaSimulacion = LayoutTabla.CrearTablaSimulacion();
         }
 
         private static void AgregarProcesosQueLlegan()
@@ -90,13 +89,7 @@ namespace PlanificacionDeProcesos
 
         private static void AgregarFilaATablaSimulacion()
         {
-            string colaStr = LayoutTabla.FormatearColaReady(_colaReady);
-            string cpuStr = LayoutTabla.FormatearCPU(_procesoActual);
-            string rafagaStr = _procesoActual != null
-                ? LayoutTabla.FormatearRafagaRestante(_procesoActual.RafagaRestante)
-                : "--";
-
-            _tablaSimulacion.AddRow(_tiempoActual.ToString(), colaStr, cpuStr, rafagaStr);
+            LayoutTabla.AgregarFilaSimulacion(_tiempoActual, _colaReady, _procesoActual);
         }
 
         private static void EjecutarUnidadDeTiempo()
@@ -117,7 +110,7 @@ namespace PlanificacionDeProcesos
 
         private static void MostrarResultadosFinales()
         {
-            LayoutTabla.MostrarResultados(_tablaSimulacion, _tiempoActual, _ordenFinalizacion);
+            LayoutTabla.MostrarResultados(_tiempoActual, _ordenFinalizacion);
         }
     }
 }
