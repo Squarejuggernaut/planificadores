@@ -13,21 +13,23 @@ namespace PlanificacionDeProcesos
 
         public static void Ejecutar(List<PCB> procesosOriginales)
         {
+            Console.WriteLine("=== SIMULADOR DE PLANIFICACIÓN FCFS ===\n");
             if (!ValidarProcesos(procesosOriginales)) return;
 
             Inicializar(procesosOriginales);
-            InicializarUI();
+            LayoutTabla.InicializarTablaSimulacion();
+            MostrarTablaProcesosIniciales();
 
             while (_procesosTerminados < _procesos.Count)
             {
                 AgregarProcesosQueLlegan();
                 AsignarCPU();
-                AgregarFilaATablaSimulacion();
+                LayoutTabla.AgregarFilaFCFS(_tiempoActual, _colaReady, _procesoActual);
                 EjecutarUnidadDeTiempo();
                 _tiempoActual++;
             }
 
-            MostrarResultadosFinales();
+            LayoutTabla.MostrarResultados(_tiempoActual, _ordenFinalizacion);
         }
 
         private static bool ValidarProcesos(List<PCB> procesos)
@@ -50,7 +52,7 @@ namespace PlanificacionDeProcesos
             _procesosTerminados = 0;
         }
 
-        private static void InicializarUI()
+        private static void MostrarTablaProcesosIniciales()
         {
             AnsiConsole.Write(new Rule("📋 Procesos creados (estado NEW)").RuleStyle("yellow"));
             var tablaProcesos = LayoutTabla.CrearTablaProcesosIniciales(_procesos);
@@ -87,11 +89,6 @@ namespace PlanificacionDeProcesos
             }
         }
 
-        private static void AgregarFilaATablaSimulacion()
-        {
-            LayoutTabla.AgregarFilaSimulacion(_tiempoActual, _colaReady, _procesoActual);
-        }
-
         private static void EjecutarUnidadDeTiempo()
         {
             if (_procesoActual != null)
@@ -106,11 +103,6 @@ namespace PlanificacionDeProcesos
                     _procesosTerminados++;
                 }
             }
-        }
-
-        private static void MostrarResultadosFinales()
-        {
-            LayoutTabla.MostrarResultados(_tiempoActual, _ordenFinalizacion);
         }
     }
 }

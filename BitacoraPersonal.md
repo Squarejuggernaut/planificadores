@@ -29,8 +29,8 @@
 #### Algoritmos de planificación
 
 - ✅ **Resuelto en Refactor 6:** **FCFS:** Solo ordena por tiempo de llegada y muestra el orden. No simula una cola FIFO real. Debería usar `Queue<PCB>` para que sea más fiel a la teoría.
-- ⬜ **Pendiente:** **SJF:** Solo ordena por ráfaga de CPU y muestra el orden. No simula una cola de prioridad real. Podría usar `PriorityQueue<PCB>`.
-- ⬜ **Pendiente:** Ambos procedimientos son primitivos: falta mostrar los estados que van teniendo los procesos, los tiempos de ejecución, qué va cambiando de cada PCB. No están respetando del todo la teoría (FCFS = cola simple, SJF = cola de prioridad).
+- ✅ **Resuelto en Refactor 8:** Solo ordena por ráfaga de CPU y muestra el orden. No simula una cola de prioridad real. Podría usar `PriorityQueue<PCB>`.
+- ✅ **Resuelto en Refactor 6, 7 y 8:** Ambos procedimientos son primitivos: falta mostrar los estados que van teniendo los procesos, los tiempos de ejecución, qué va cambiando de cada PCB. No están respetando del todo la teoría (FCFS = cola simple, SJF = cola de prioridad).
 
 #### Tiempos
 
@@ -127,7 +127,7 @@
 
 ### Pendiente (para próximos refactors)
 
-- ⬜ **Pendiente:** Una vez que FCFS funcione, repetir la estructura para **SJF**
+- ✅ **Resuelto en Refactor 8:** Una vez que FCFS funcione, repetir la estructura para **SJF**
 - ⬜ **Pendiente:** Migrar métodos comunes a **`PlanificadorBase`** (clase abstracta)
 - ⬜ **Pendiente:** Agregar **interacción con el usuario** (elegir planificador, cargar datos dinámicamente)
 
@@ -214,4 +214,17 @@
   - Separación clara entre lógica de negocio (planificación) y presentación (UI).
   - El código es más mantenible y reutilizable para futuros planificadores (SJF, RR).
 - **Nuevos problemas detectados:**
-  - ⬜ **Pendiente:** Implementar SJF reutilizando `LayoutTabla`.
+  - ✅ **Resuelto en Refactor 8:** Implementar SJF reutilizando `LayoutTabla`.
+
+## Refactor 8: Implementación completa de SJF con PriorityQueue y corrección de visualización
+
+- **Cambios realizados:**
+  - Se implementó `PlanificadorSJF.cs` usando `PriorityQueue<PCB, (int rafaga, int pid)>` para ordenar por ráfaga (menor primero) y desempatar por PID.
+  - Se corrigió la visualización de la cola READY en `LayoutTabla.AgregarFilaSJF()` ordenando manualmente los elementos de la `PriorityQueue` antes de mostrarlos.
+  - Se validaron casos borde: lista vacía, límite de 10 procesos, exceso de procesos, misma ráfaga, llegadas escalonadas.
+- **Problemas que resuelve:**
+  - SJF ahora respeta la prioridad por ráfaga más corta.
+  - En caso de empate, se respeta el orden de llegada (por PID).
+  - La visualización de la cola en tiempo 0 ahora es correcta.
+- **Nuevos problemas detectados:**
+  - ⬜ **Pendiente:** FCFS y SJF comparten mucha lógica repetida (inicialización, llegadas, ejecución de unidad de tiempo, UI). Conviene crear una clase base `PlanificadorBase` para evitar duplicación.
