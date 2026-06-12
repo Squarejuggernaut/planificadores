@@ -123,7 +123,7 @@
 
 ### Dependencias externas
 
-- ⬜ **Pendiente:** Agregar paquete `Spectre.Console` al proyecto (`dotnet add package Spectre.Console`)
+- ✅ **Resuelto en Refactor 5:** Agregar paquete `Spectre.Console` al proyecto (`dotnet add package Spectre.Console`)
 
 ### Pendiente (para próximos refactors)
 
@@ -142,3 +142,10 @@
   - El código es más legible (ya no hay que comparar `Estado == EstadoProceso.XXX` en todas partes).
 - **Nuevos problemas detectados:**
   - ⬜ **Pendiente:** Los planificadores aún no usan `RafagaRestante` ni las nuevas propiedades.
+
+## Refactor 5: Agregar paquete Spectre.Console
+
+- **Cambios realizados:**
+  - Se agregó el paquete Spectre.Console.
+- **Problemas que resuelve:**
+  - Me simplifica la creación de tablas para mostrar resultados por consola por ejemplo cuando haya que mostrar la ejecución de un planificador.
