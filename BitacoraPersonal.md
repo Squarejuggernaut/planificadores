@@ -28,13 +28,13 @@
 
 #### Algoritmos de planificación
 
-- ⬜ **Pendiente:** **FCFS:** Solo ordena por tiempo de llegada y muestra el orden. No simula una cola FIFO real. Debería usar `Queue<PCB>` para que sea más fiel a la teoría.
+- ✅ **Resuelto en Refactor 6:** **FCFS:** Solo ordena por tiempo de llegada y muestra el orden. No simula una cola FIFO real. Debería usar `Queue<PCB>` para que sea más fiel a la teoría.
 - ⬜ **Pendiente:** **SJF:** Solo ordena por ráfaga de CPU y muestra el orden. No simula una cola de prioridad real. Podría usar `PriorityQueue<PCB>`.
 - ⬜ **Pendiente:** Ambos procedimientos son primitivos: falta mostrar los estados que van teniendo los procesos, los tiempos de ejecución, qué va cambiando de cada PCB. No están respetando del todo la teoría (FCFS = cola simple, SJF = cola de prioridad).
 
 #### Tiempos
 
-- ⬜ **Pendiente:** Deberían pasar de Nuevo a la cola de preparados en su debido tiempo dinámicamente así aprovechamos que se vea en todo momento los procesos nuevos cómo se van encolando desencolando y ordenándose a medida que van llegando.
+- ✅ **Resuelto en Refactor 6:** Deberían pasar de Nuevo a la cola de preparados en su debido tiempo dinámicamente así aprovechamos que se vea en todo momento los procesos nuevos cómo se van encolando desencolando y ordenándose a medida que van llegando.
 
 ## Refactor 1: Reemplazar string Estado por enum EstadoProceso
 
@@ -46,7 +46,7 @@
 - **Problemas que resuelve:**
   - Estados como `string`: Ahora el compilador valida los valores, evitando errores por mayúsculas o typo.
 - **Nuevos problemas detectados:**
-  - ⬜ **Pendiente:** Los PCBs se crean con estado `NEW`, pero los planificadores (FCFS y SJF) aún no actualizan el estado a `READY`, `RUNNING` o `TERMINATED` durante la simulación.
+  - ✅ **Resuelto en Refactor 6:** Los PCBs se crean con estado `NEW`, pero los planificadores (FCFS y SJF) aún no actualizan el estado a `READY`, `RUNNING` o `TERMINATED` durante la simulación.
 - **Mejora adicional (no planeada originalmente):**
   - Se modificó la salida de FCFS y SJF para mostrar el estado actual de cada proceso, evidenciando que todos siguen en `NEW` (aún no se implementa el cambio de estado en los planificadores).
 
@@ -77,7 +77,7 @@
 
 ### Objetivo
 
-- ⬜ **Pendiente:** Implementar una simulación **FCFS paso a paso (unidad por unidad de tiempo)** que muestre:
+- ✅ **Resuelto en Refactor 6:** Implementar una simulación **FCFS paso a paso (unidad por unidad de tiempo)** que muestre:
   - Tabla de procesos iniciales (estado NEW)
   - Evolución de la simulación (tiempo, cola READY, CPU, ráfaga restante)
   - Resultados finales (tiempo total, orden de finalización)
@@ -141,7 +141,7 @@
   - La simulación puede modificar la ráfaga restante sin afectar la ráfaga original.
   - El código es más legible (ya no hay que comparar `Estado == EstadoProceso.XXX` en todas partes).
 - **Nuevos problemas detectados:**
-  - ⬜ **Pendiente:** Los planificadores aún no usan `RafagaRestante` ni las nuevas propiedades.
+  - ✅ **Resuelto en Refactor 6:** Los planificadores aún no usan `RafagaRestante` ni las nuevas propiedades.
 
 ## Refactor 5: Agregar paquete Spectre.Console
 
@@ -149,3 +149,51 @@
   - Se agregó el paquete Spectre.Console.
 - **Problemas que resuelve:**
   - Me simplifica la creación de tablas para mostrar resultados por consola por ejemplo cuando haya que mostrar la ejecución de un planificador.
+
+## Refactor 6: Implementación completa de FCFS paso a paso con mejoras visuales y límite de procesos
+
+### Cambios realizados
+
+#### 1. Simulación paso a paso (unidad por unidad de tiempo)
+- Se implementó el bucle principal que avanza `_tiempoActual` de 1 en 1.
+- En cada unidad de tiempo:
+  - Se agregan a la cola READY los procesos cuyo `TiempoLlegada == _tiempoActual`.
+  - Si la CPU está libre, se asigna el próximo proceso de la cola (FIFO).
+  - Se decrementa `RafagaRestante` del proceso en CPU.
+  - Si `RafagaRestante == 0`, el proceso TERMINA y se registra en `_ordenFinalizacion`.
+
+#### 2. Límite máximo de procesos
+- Se agregó validación al inicio de `Ejecutar()`: máximo 10 procesos.
+- Si se supera, se muestra un error en rojo y se aborta la simulación.
+
+#### 3. Colores automáticos para procesos (hasta 10)
+- Se definió un array con 10 colores distintos (Blue, Green, Yellow, Magenta, Cyan, Orange1, Pink1, Aqua, Lime, Purple).
+- Función `ObtenerNombreConColor(PCB)` que asigna color según PID (cíclico).
+- Los nombres con color se muestran en:
+  - Tabla de procesos iniciales.
+  - Cola de READY (cada proceso con su color).
+  - CPU (proceso en ejecución).
+  - Orden de finalización (cada nombre con su color).
+
+#### 4. Mejoras visuales en la tabla de simulación
+- Se cambió el título de columna `"Ráfaga restante"` a `"Rafaga restante"` (sin acento).
+- Cuando `RafagaRestante == 1`, se muestra `"1 (fin)"` en color rojo para destacar la finalización.
+- La cola READY vacía se muestra como `"vacía"`.
+- CPU sin proceso se muestra como `"---"`.
+
+#### 5. Integración con Spectre.Console
+- Se utilizó `Table` para mostrar resultados de forma profesional.
+- Se usó `Rule` para separar secciones (procesos iniciales, resultados finales).
+- Se usó `MarkupLine` para mostrar texto con colores.
+
+### Problemas que resuelve
+
+- ✅ FCFS ahora respeta fielmente la teoría (cola FIFO, llegadas dinámicas, cambios de estado).
+- ✅ La simulación es educativa (se ve el estado en cada unidad de tiempo).
+- ✅ El código es más profesional y presentable para el TP final.
+- ✅ Se evitan errores visuales con el límite de 10 procesos.
+
+### Nuevos problemas detectados
+
+- ⬜ **Pendiente:** La lógica de UI (colores, tablas, formato) está acoplada dentro de `PlanificadorFCFS`. Conviene extraerla a un archivo aparte (`LayoutTabla.cs`) para reutilizarla en SJF y futuros planificadores.
+- ⬜ **Pendiente:** Probar el comportamiento cuando dos procesos llegan en el mismo tiempo (ej. `TiempoLlegada = 2` para P2 y P3).
