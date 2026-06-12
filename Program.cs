@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using PlanificacionDeProcesos;
-
+﻿using PlanificacionDeProcesos;
 class Program
 {
     static void Main(string[] args)
