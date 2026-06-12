@@ -196,7 +196,13 @@
 ### Nuevos problemas detectados
 
 - ✅ **Resuelto en Refactor 7:** La lógica de UI (colores, tablas, formato) está acoplada dentro de `PlanificadorFCFS`. Conviene extraerla a un archivo aparte (`LayoutTabla.cs`) para reutilizarla en SJF y futuros planificadores.
-- ⬜ **Pendiente:** Probar el comportamiento cuando dos procesos llegan en el mismo tiempo (ej. `TiempoLlegada = 2` para P2 y P3).
+
+### Pruebas de casos borde realizadas
+
+- ✅ **Lista vacía:** El programa termina sin errores (no hay nada que simular).
+- ✅ **Máximo 10 procesos:** Funciona correctamente, todos con color asignado.
+- ✅ **Exceder límite (11 procesos):** Muestra error `"Error: Máximo 10 procesos permitidos."` y aborta.
+- ✅ **Todos los procesos en tiempo 0:** Se encolan correctamente, el primero pasa a RUNNING.
 
 ## Refactor 7: Extraer lógica de UI a LayoutTabla.cs
 
