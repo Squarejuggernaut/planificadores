@@ -8,7 +8,7 @@ namespace PlanificacionDeProcesos
             Console.WriteLine("Orden de ejecución (FCFS):");
             foreach (var p in ordenados)
             {
-                Console.WriteLine($"  {p.Nombre} - Estado: {p.Estado} (PID: {p.PID}, ráfaga: {p.RáfagaCPU}, llegada: {p.TiempoLlegada})");
+                Console.WriteLine($"  {p.Nombre} - Estado: {p.Estado} (PID: {p.PID}, ráfaga: {p.RafagaCPU}, llegada: {p.TiempoLlegada})");
             }
         }
     }

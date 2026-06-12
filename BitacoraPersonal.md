@@ -73,10 +73,10 @@
 - **Nuevos problemas detectados:**
   - ⬜ **Pendiente:** Estoy viendo que vamos a tener muchas cosas que se van a repetir entre todos los tipos de planificadores quizás con una clase abstracta que actúe de padre o base. Donde se pueda poner todo lo que se compartirá entre todos y luego las hijas hagan que cada uno maneje lo específico.
 
-
 ## Punto crítico: Análisis y planificación profunda de cómo voy a encarar la simulación FCFS paso a paso
 
 ### Objetivo
+
 - ⬜ **Pendiente:** Implementar una simulación **FCFS paso a paso (unidad por unidad de tiempo)** que muestre:
   - Tabla de procesos iniciales (estado NEW)
   - Evolución de la simulación (tiempo, cola READY, CPU, ráfaga restante)
@@ -84,8 +84,8 @@
 
 ### Cambios planificados en `PCB.cs`
 
-- ⬜ **Pendiente:** Agregar propiedad `RáfagaRestante` (con `get; set;`) para decrementar durante la simulación sin perder la ráfaga original.
-- ⬜ **Pendiente:** Agregar propiedades calculadas para mejorar legibilidad:
+- ✅ **Resuelto en Refactor 4:** Agregar propiedad `RafagaRestante` (con `get; set;`) para decrementar durante la simulación sin perder la ráfaga original.
+- ✅ **Resuelto en Refactor 4:** Agregar propiedades calculadas para mejorar legibilidad:
   - `bool EsNuevo => Estado == EstadoProceso.NEW;`
   - `bool EstaReady => Estado == EstadoProceso.READY;`
   - `bool EstaRunning => Estado == EstadoProceso.RUNNING;`
@@ -130,3 +130,15 @@
 - ⬜ **Pendiente:** Una vez que FCFS funcione, repetir la estructura para **SJF**
 - ⬜ **Pendiente:** Migrar métodos comunes a **`PlanificadorBase`** (clase abstracta)
 - ⬜ **Pendiente:** Agregar **interacción con el usuario** (elegir planificador, cargar datos dinámicamente)
+
+## Refactor 4: Agregar RafagaRestante y propiedades calculadas a PCB
+
+- **Cambios realizados:**
+  - Se agregó la propiedad `RafagaRestante` (con `get; set;`) para decrementar durante la simulación sin perder la ráfaga original.
+  - Se agregaron propiedades calculadas para mejorar la legibilidad:
+    - `EsNuevo`, `EstaReady`, `EstaRunning`, `EstaTerminado`.
+- **Problemas que resuelve:**
+  - La simulación puede modificar la ráfaga restante sin afectar la ráfaga original.
+  - El código es más legible (ya no hay que comparar `Estado == EstadoProceso.XXX` en todas partes).
+- **Nuevos problemas detectados:**
+  - ⬜ **Pendiente:** Los planificadores aún no usan `RafagaRestante` ni las nuevas propiedades.
