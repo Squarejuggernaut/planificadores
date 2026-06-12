@@ -72,3 +72,61 @@
   - Organización del código: ya no está todo en un solo archivo.
 - **Nuevos problemas detectados:**
   - ⬜ **Pendiente:** Estoy viendo que vamos a tener muchas cosas que se van a repetir entre todos los tipos de planificadores quizás con una clase abstracta que actúe de padre o base. Donde se pueda poner todo lo que se compartirá entre todos y luego las hijas hagan que cada uno maneje lo específico.
+
+
+## Punto crítico: Análisis y planificación profunda de cómo voy a encarar la simulación FCFS paso a paso
+
+### Objetivo
+- ⬜ **Pendiente:** Implementar una simulación **FCFS paso a paso (unidad por unidad de tiempo)** que muestre:
+  - Tabla de procesos iniciales (estado NEW)
+  - Evolución de la simulación (tiempo, cola READY, CPU, ráfaga restante)
+  - Resultados finales (tiempo total, orden de finalización)
+
+### Cambios planificados en `PCB.cs`
+
+- ⬜ **Pendiente:** Agregar propiedad `RáfagaRestante` (con `get; set;`) para decrementar durante la simulación sin perder la ráfaga original.
+- ⬜ **Pendiente:** Agregar propiedades calculadas para mejorar legibilidad:
+  - `bool EsNuevo => Estado == EstadoProceso.NEW;`
+  - `bool EstaReady => Estado == EstadoProceso.READY;`
+  - `bool EstaRunning => Estado == EstadoProceso.RUNNING;`
+  - `bool EstaTerminado => Estado == EstadoProceso.TERMINATED;`
+
+### Variables de clase (PlanificadorFCFS.cs)
+
+- `private static int _tiempoActual;` → tiempo actual de la simulación
+- `private static Queue<PCB> _colaReady;` → cola FIFO de procesos listos
+- `private static PCB _procesoActual;` → proceso en CPU (o `null`)
+- `private static List<PCB> _procesos;` → copia ordenada de los procesos originales
+- `private static List<string> _ordenFinalizacion;` → guarda el orden en que terminan
+- `private static int _procesosTerminados;` → contador de procesos finalizados
+- `private static Table _tablaSimulacion;` → tabla de Spectre.Console
+
+### Métodos a implementar (PlanificadorFCFS.cs)
+
+- `public static void Ejecutar(List<PCB> procesosOriginales)` → coordina toda la simulación
+- `private static void Inicializar(List<PCB> procesosOriginales)` → prepara variables y ordena procesos por llegada
+- `private static void MostrarTablaProcesosIniciales()` → muestra tabla de procesos en estado NEW
+- `private static void ConfigurarTablaSimulacion()` → crea y configura la tabla de Spectre.Console
+- `private static void AgregarProcesosQueLlegan()` → pasa procesos de `NEW` a `READY` o `RUNNING` según `TiempoLlegada`
+- `private static void AsignarCPU()` → desencola el próximo proceso de `_colaReady` si CPU libre (FIFO)
+- `private static void AgregarFilaATablaSimulacion()` → agrega una fila con el estado actual
+- `private static void EjecutarUnidadDeTiempo()` → decrementa `RáfagaRestante` y maneja finalización
+- `private static void MostrarResultadosFinales()` → muestra la tabla completa y el resumen
+
+### Reglas de negocio que se implementarán
+
+- **Llegada de procesos:** Cuando `_tiempoActual == TiempoLlegada`, el proceso pasa de `NEW` a `READY` (si CPU ocupada) o directamente a `RUNNING` (si CPU libre)
+- **Asignación de CPU:** Si CPU libre y hay procesos en `_colaReady`, se toma el primero (FIFO)
+- **Ejecución de unidad:** Se decrementa `RáfagaRestante` en **1** por cada unidad de tiempo
+- **Finalización:** Cuando `RáfagaRestante == 0`, el proceso pasa a `TERMINATED`, se guarda en `_ordenFinalizacion` y se libera la CPU
+- **Visualización:** Cuando `RáfagaRestante == 1`, se muestra `"1 ⏳ (termina)"` para indicar que en esa unidad terminará
+
+### Dependencias externas
+
+- ⬜ **Pendiente:** Agregar paquete `Spectre.Console` al proyecto (`dotnet add package Spectre.Console`)
+
+### Pendiente (para próximos refactors)
+
+- ⬜ **Pendiente:** Una vez que FCFS funcione, repetir la estructura para **SJF**
+- ⬜ **Pendiente:** Migrar métodos comunes a **`PlanificadorBase`** (clase abstracta)
+- ⬜ **Pendiente:** Agregar **interacción con el usuario** (elegir planificador, cargar datos dinámicamente)
