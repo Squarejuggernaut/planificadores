@@ -195,5 +195,17 @@
 
 ### Nuevos problemas detectados
 
-- ⬜ **Pendiente:** La lógica de UI (colores, tablas, formato) está acoplada dentro de `PlanificadorFCFS`. Conviene extraerla a un archivo aparte (`LayoutTabla.cs`) para reutilizarla en SJF y futuros planificadores.
+- ✅ **Resuelto en Refactor 7:** La lógica de UI (colores, tablas, formato) está acoplada dentro de `PlanificadorFCFS`. Conviene extraerla a un archivo aparte (`LayoutTabla.cs`) para reutilizarla en SJF y futuros planificadores.
 - ⬜ **Pendiente:** Probar el comportamiento cuando dos procesos llegan en el mismo tiempo (ej. `TiempoLlegada = 2` para P2 y P3).
+
+## Refactor 7: Extraer lógica de UI a LayoutTabla.cs
+
+- **Cambios realizados:**
+  - Se creó `LayoutTabla.cs` con métodos estáticos para crear tablas, formatear colas, CPU y ráfagas.
+  - Se eliminó la lógica de `Spectre.Console` de `PlanificadorFCFS.cs`, delegando todo a `LayoutTabla`.
+  - `PlanificadorFCFS.cs` quedó más limpio, solo con la lógica de simulación.
+- **Problemas que resuelve:**
+  - Separación clara entre lógica de negocio (planificación) y presentación (UI).
+  - El código es más mantenible y reutilizable para futuros planificadores (SJF, RR).
+- **Nuevos problemas detectados:**
+  - ⬜ **Pendiente:** Implementar SJF reutilizando `LayoutTabla`.
