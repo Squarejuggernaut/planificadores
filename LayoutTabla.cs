@@ -2,16 +2,25 @@ using Spectre.Console;
 
 namespace PlanificacionDeProcesos
 {
+    /// <summary>
+    /// Clase auxiliar para toda la interfaz de usuario (UI).
+    /// Centraliza la creación de tablas, colores por proceso, formato de salida
+    /// y mensajes de la interfaz.
+    /// </summary>
     public static class LayoutTabla
     {
-        private static readonly Color[] _coloresProcesos = new Color[]
-        {
+        private static readonly Color[] _coloresProcesos =
+        [
             Color.Blue, Color.Green, Color.Yellow, Color.Magenta, Color.Cyan,
             Color.Orange1, Color.Pink1, Color.Aqua, Color.Lime, Color.Purple
-        };
+        ];
 
         private static Table _tablaSimulacion;
 
+        /// <summary>
+        /// Devuelve el nombre del proceso con el color asignado según su PID.
+        /// El color se asigna de forma cíclica (PID 1 → Blue, PID 2 → Green, etc.).
+        /// </summary>
         public static string ObtenerNombreConColor(PCB proceso)
         {
             int indice = (proceso.PID - 1) % _coloresProcesos.Length;
@@ -19,18 +28,45 @@ namespace PlanificacionDeProcesos
             return $"[{color.ToString().ToLower()}]{proceso.Nombre}[/]";
         }
 
-        public static Table CrearTablaProcesosIniciales(List<PCB> procesos)
+        /// <summary>
+        /// Muestra la tabla de procesos en estado NEW (recién creados).
+        /// </summary>
+        public static void MostrarTablaProcesosIniciales(List<PCB> procesos)
+        {
+            AnsiConsole.Write(new Rule(" Procesos creados (estado NEW)").RuleStyle("yellow"));
+            var tabla = CrearTablaProcesosIniciales(procesos);
+            AnsiConsole.Write(tabla);
+            AnsiConsole.WriteLine();
+        }
+
+        /// <summary>
+        /// Crea la tabla de procesos en estado NEW.
+        /// Muestra PID, Nombre, Ráfaga CPU y Tiempo de llegada.
+        /// </summary>
+        private static Table CrearTablaProcesosIniciales(List<PCB> procesos)
         {
             var tabla = new Table().Border(TableBorder.Rounded)
-                .AddColumn("PID").AddColumn("Nombre").AddColumn("Rafaga CPU").AddColumn("Tiempo llegada");
+                .AddColumn("PID")
+                .AddColumn("Nombre")
+                .AddColumn("Rafaga CPU")
+                .AddColumn("Tiempo llegada");
 
-            foreach (var p in procesos)
-                tabla.AddRow(p.PID.ToString(), ObtenerNombreConColor(p), p.RafagaCPU.ToString(), p.TiempoLlegada.ToString());
+            foreach (var proceso in procesos)
+                tabla.AddRow(
+                    proceso.PID.ToString(),
+                    ObtenerNombreConColor(proceso),
+                    proceso.RafagaCPU.ToString(),
+                    proceso.TiempoLlegada.ToString()
+                );
 
             return tabla;
         }
 
-        public static void InicializarTablaSimulacion()
+        /// <summary>
+        /// Prepara la tabla de simulación (tiempo, cola READY, CPU, ráfaga restante).
+        /// Debe llamarse antes de comenzar a agregar filas.
+        /// </summary>
+        public static void PrepararTablaSimulacion()
         {
             _tablaSimulacion = new Table().Border(TableBorder.Rounded)
                 .AddColumn(new TableColumn("Tiempo").Centered())
@@ -40,56 +76,124 @@ namespace PlanificacionDeProcesos
             _tablaSimulacion.BorderColor(Color.Grey);
         }
 
-        public static Table ObtenerTablaSimulacion()
+        /// <summary>
+        /// Obtiene la tabla de simulación actual (la crea si no existe).
+        /// </summary>
+        private static Table ObtenerTablaSimulacion()
         {
             if (_tablaSimulacion == null)
-                InicializarTablaSimulacion();
+                PrepararTablaSimulacion();
             return _tablaSimulacion;
         }
 
-        // Para FCFS (Queue)
-        public static void AgregarFilaFCFS(int tiempoActual, Queue<PCB> colaReady, PCB procesoActual)
+        /// <summary>
+        /// Agrega una fila a la tabla de simulación para FCFS.
+        /// </summary>
+        public static void AgregarFilaFCFS(int tiempoActual, Queue<PCB> colaReady, PCB procesoEnCPU)
         {
-            string colaStr = colaReady.Count == 0 ? "vacía" : string.Join(", ", colaReady.Select(p => ObtenerNombreConColor(p)));
-            string cpuStr = procesoActual != null ? ObtenerNombreConColor(procesoActual) : "---";
-            string rafagaStr = procesoActual != null
-                ? (procesoActual.RafagaRestante == 1 ? "[red]1 (fin)[/]" : procesoActual.RafagaRestante.ToString())
-                : "--";
-
-            ObtenerTablaSimulacion().AddRow(tiempoActual.ToString(), colaStr, cpuStr, rafagaStr);
+            AgregarFila(tiempoActual, FormatearColaFCFS(colaReady), procesoEnCPU);
         }
 
-        // Para SJF (PriorityQueue con tupla)
-        public static void AgregarFilaSJF(int tiempoActual, PriorityQueue<PCB, (int rafaga, int pid)> colaReady, PCB procesoActual)
+        /// <summary>
+        /// Agrega una fila a la tabla de simulación para SJF.
+        /// </summary>
+        public static void AgregarFilaSJF(int tiempoActual, PriorityQueue<PCB, (int rafaga, int pid)> colaReady, PCB procesoEnCPU)
         {
-            string colaStr = "vacía";
-            if (colaReady != null && colaReady.Count > 0)
-            {
-                var items = new List<(PCB proceso, (int rafaga, int pid) prioridad)>();
-                foreach (var item in colaReady.UnorderedItems)
-                {
-                    items.Add((item.Element, item.Priority));
-                }
-                
-                // Ordenar por ráfaga y luego por PID
-                items = [.. items.OrderBy(i => i.prioridad.rafaga).ThenBy(i => i.prioridad.pid)];
-                colaStr = string.Join(", ", items.Select(i => ObtenerNombreConColor(i.proceso)));
-            }
-
-            string cpuStr = procesoActual != null ? ObtenerNombreConColor(procesoActual) : "---";
-            string rafagaStr = procesoActual != null
-                ? (procesoActual.RafagaRestante == 1 ? "[red]1 (fin)[/]" : procesoActual.RafagaRestante.ToString())
-                : "--";
-
-            ObtenerTablaSimulacion().AddRow(tiempoActual.ToString(), colaStr, cpuStr, rafagaStr);
+            AgregarFila(tiempoActual, FormatearColaSJF(colaReady), procesoEnCPU);
         }
 
+        /// <summary>
+        /// Agrega una fila a la tabla de simulación (lógica común).
+        /// </summary>
+        private static void AgregarFila(int tiempoActual, string colaFormateada, PCB procesoEnCPU)
+        {
+            ObtenerTablaSimulacion().AddRow(
+                tiempoActual.ToString(),
+                colaFormateada,
+                FormatearCPU(procesoEnCPU),
+                FormatearRafaga(procesoEnCPU)
+            );
+        }
+
+        /// <summary>
+        /// Formatea la cola de READY para FCFS (Queue).
+        /// </summary>
+        private static string FormatearColaFCFS(Queue<PCB> colaReady)
+        {
+            if (colaReady.Count == 0)
+                return "vacía";
+
+            return string.Join(", ", colaReady.Select(ObtenerNombreConColor));
+        }
+
+        /// <summary>
+        /// Formatea la cola de READY para SJF (PriorityQueue).
+        /// </summary>
+        private static string FormatearColaSJF(PriorityQueue<PCB, (int rafaga, int pid)> colaReady)
+        {
+            if (colaReady == null || colaReady.Count == 0)
+                return "vacía";
+
+            // Extrae los elementos de la PriorityQueue (sin órden garantizado) y los guarda en una lista con su prioridad (desordenadamente).
+            var items = new List<(PCB proceso, (int rafaga, int pid) prioridad)>();
+            foreach (var (Element, Priority) in colaReady.UnorderedItems)
+                items.Add((Element, Priority));
+
+            // ecorro la lista y ordeno manualmente los procesos por prioridad primero el que menor rafaga y luego por PID (en caso de empate de ráfaga).
+            items = [.. items.OrderBy(i => i.prioridad.rafaga).ThenBy(i => i.prioridad.pid)];
+
+            return string.Join(", ", items.Select(item => ObtenerNombreConColor(item.proceso)));
+        }
+
+        /// <summary>
+        /// Formatea el nombre del proceso en CPU (o "---" si no hay).
+        /// </summary>
+        private static string FormatearCPU(PCB procesoEnCPU)
+        {
+            return procesoEnCPU != null ? ObtenerNombreConColor(procesoEnCPU) : "---";
+        }
+
+        /// <summary>
+        /// Formatea la ráfaga restante del proceso en CPU.
+        /// </summary>
+        private static string FormatearRafaga(PCB procesoEnCPU)
+        {
+            if (procesoEnCPU == null)
+                return "--";
+
+            return procesoEnCPU.RafagaRestante == 1
+                ? "[red]1 (fin)[/]"
+                : procesoEnCPU.RafagaRestante.ToString();
+        }
+
+        /// <summary>
+        /// Muestra el título según el planificador utilizado en la consola.
+        /// </summary>
+        public static void MostrarTituloPlanificador(string nombre)
+        {
+            Console.WriteLine($"=== SIMULADOR DE PLANIFICACIÓN {nombre} ===\n");
+        }
+
+        /// <summary>
+        /// Muestra un mensaje de error cuando se supera el límite de 10 procesos.
+        /// </summary>
+        public static void MostrarErrorLimiteProcesos()
+        {
+            AnsiConsole.MarkupLine("[red]Error: Máximo 10 procesos permitidos.[/]");
+        }
+
+        /// <summary>
+        /// Muestra el resumen final de la simulación:
+        /// - Tabla completa de simulación
+        /// - Tiempo total de simulación
+        /// - Orden de finalización de los procesos
+        /// </summary>
         public static void MostrarResultados(int tiempoActual, List<string> ordenFinalizacion)
         {
-            AnsiConsole.Write(new Rule("🏁 Resultados finales").RuleStyle("green"));
+            AnsiConsole.Write(new Rule(" Resultados finales").RuleStyle("green"));
             AnsiConsole.Write(ObtenerTablaSimulacion());
-            AnsiConsole.MarkupLine($"\n[green]✅ Tiempo total de simulación: {tiempoActual}[/]");
-            AnsiConsole.MarkupLine($"[blue]📋 Procesos terminados (en orden): {string.Join(", ", ordenFinalizacion)}[/]");
+            AnsiConsole.MarkupLine($"\n[green] Tiempo total de simulación: {tiempoActual}[/]");
+            AnsiConsole.MarkupLine($"[blue] Procesos terminados (en orden): {string.Join(", ", ordenFinalizacion)}[/]");
         }
     }
 }
