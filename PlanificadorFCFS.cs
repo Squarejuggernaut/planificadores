@@ -1,108 +1,53 @@
-using Spectre.Console;
-
 namespace PlanificacionDeProcesos
 {
-    public static class PlanificadorFCFS
+    /// <summary>
+    /// Implementación del algoritmo de planificación FCFS (First Come, First Served).
+    /// Hereda de PlanificadorBase y usa una cola FIFO (Queue).
+    /// 
+    /// Características:
+    /// - No apropiativo: un proceso no se interrumpe hasta que termina.
+    /// - El orden de ejecución es el orden de llegada.
+    /// - La cola de READY es una Queue (FIFO).
+    /// </summary>
+    public class PlanificadorFCFS : PlanificadorBase
     {
-        private static int _tiempoActual;
-        private static Queue<PCB> _colaReady;
-        private static PCB _procesoActual;
-        private static List<PCB> _procesos;
-        private static List<string> _ordenFinalizacion;
-        private static int _procesosTerminados;
+        /// <summary> Cola de procesos listos para ejecutar (FIFO). </summary>
+        private Queue<PCB> _colaReady;
 
-        public static void Ejecutar(List<PCB> procesosOriginales)
+        /// <summary> Nombre del planificador (se muestra en la UI). </summary>
+        protected override string NombrePlanificador => "FCFS";
+
+        /// <summary> Inicializa la cola de READY como una Queue vacía. </summary>
+        protected override void InicializarCola()
         {
-            Console.WriteLine("=== SIMULADOR DE PLANIFICACIÓN FCFS ===\n");
-            if (!ValidarProcesos(procesosOriginales)) return;
-
-            Inicializar(procesosOriginales);
-            LayoutTabla.InicializarTablaSimulacion();
-            MostrarTablaProcesosIniciales();
-
-            while (_procesosTerminados < _procesos.Count)
-            {
-                AgregarProcesosQueLlegan();
-                AsignarCPU();
-                LayoutTabla.AgregarFilaFCFS(_tiempoActual, _colaReady, _procesoActual);
-                EjecutarUnidadDeTiempo();
-                _tiempoActual++;
-            }
-
-            LayoutTabla.MostrarResultados(_tiempoActual, _ordenFinalizacion);
-        }
-
-        private static bool ValidarProcesos(List<PCB> procesos)
-        {
-            if (procesos.Count > 10)
-            {
-                AnsiConsole.MarkupLine("[red]Error: Máximo 10 procesos permitidos.[/]");
-                return false;
-            }
-            return true;
-        }
-
-        private static void Inicializar(List<PCB> procesosOriginales)
-        {
-            _tiempoActual = 0;
             _colaReady = new Queue<PCB>();
-            _procesoActual = null;
-            _procesos = [.. procesosOriginales.OrderBy(p => p.TiempoLlegada)];
-            _ordenFinalizacion = [];
-            _procesosTerminados = 0;
         }
 
-        private static void MostrarTablaProcesosIniciales()
+        /// <summary> Agrega un proceso al final de la cola (FIFO). </summary>
+        protected override void AgregarProcesoALaColaDeReady(PCB proceso)
         {
-            AnsiConsole.Write(new Rule("📋 Procesos creados (estado NEW)").RuleStyle("yellow"));
-            var tablaProcesos = LayoutTabla.CrearTablaProcesosIniciales(_procesos);
-            AnsiConsole.Write(tablaProcesos);
-            AnsiConsole.WriteLine();
+            _colaReady.Enqueue(proceso);
         }
 
-        private static void AgregarProcesosQueLlegan()
+        /// <summary>
+        /// Asigna la CPU al próximo proceso de la cola (el primero en llegar).
+        /// Solo se ejecuta si la CPU está libre y hay procesos en READY.
+        /// </summary>
+        protected override void AsignarCPU()
         {
-            foreach (var p in _procesos)
+            if (_procesoEnCPU == null && _colaReady.Count > 0)
             {
-                if (p.EsNuevo && p.TiempoLlegada == _tiempoActual)
-                {
-                    if (_procesoActual == null)
-                    {
-                        p.Estado = EstadoProceso.RUNNING;
-                        _procesoActual = p;
-                    }
-                    else
-                    {
-                        p.Estado = EstadoProceso.READY;
-                        _colaReady.Enqueue(p);
-                    }
-                }
+                _procesoEnCPU = _colaReady.Dequeue();
+                _procesoEnCPU.Estado = EstadoProceso.RUNNING;
             }
         }
 
-        private static void AsignarCPU()
+        /// <summary>
+        /// Agrega una fila a la tabla de simulación usando el formateo específico de FCFS.
+        /// </summary>
+        protected override void AgregarFilaATabla()
         {
-            if (_procesoActual == null && _colaReady.Count > 0)
-            {
-                _procesoActual = _colaReady.Dequeue();
-                _procesoActual.Estado = EstadoProceso.RUNNING;
-            }
-        }
-
-        private static void EjecutarUnidadDeTiempo()
-        {
-            if (_procesoActual != null)
-            {
-                _procesoActual.RafagaRestante--;
-
-                if (_procesoActual.RafagaRestante == 0)
-                {
-                    _procesoActual.Estado = EstadoProceso.TERMINATED;
-                    _ordenFinalizacion.Add(LayoutTabla.ObtenerNombreConColor(_procesoActual));
-                    _procesoActual = null;
-                    _procesosTerminados++;
-                }
-            }
+            LayoutTabla.AgregarFilaFCFS(_tiempoActual, _colaReady, _procesoEnCPU);
         }
     }
 }
