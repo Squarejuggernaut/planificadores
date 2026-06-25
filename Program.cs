@@ -7,15 +7,15 @@ class Program
         var fcfs = new PlanificadorFCFS();
         var sjf = new PlanificadorSJF();
 
-        // // CASO 1: FCFS con llegadas escalonadas
-        // List<PCB> procesos =
-        // [
-        //     new PCB(6, 1),   // P1 llega 1, ráfaga 6
-        //     new PCB(3, 2),   // P2 llega 2, ráfaga 3
-        //     new PCB(2, 3)    // P3 llega 3, ráfaga 2
-        // ];
-        // Console.WriteLine("=== DEMO FCFS (llegadas escalonadas) ===");
-        // fcfs.Ejecutar(procesos);
+        // CASO 1: FCFS con llegadas escalonadas
+        List<PCB> procesos =
+        [
+            new PCB(6, 1),   // P1 llega 1, ráfaga 6
+            new PCB(3, 2),   // P2 llega 2, ráfaga 3
+            new PCB(2, 3)    // P3 llega 3, ráfaga 2
+        ];
+        Console.WriteLine("=== DEMO FCFS (llegadas escalonadas) ===");
+        fcfs.Ejecutar(procesos);
 
         // // CASO 2: SJF con llegadas escalonadas
         // List<PCB> procesosSJF =
